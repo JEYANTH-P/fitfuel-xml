@@ -1,19 +1,13 @@
-<%
-const rows = row;
-const headers = Object.keys(rows[0]);
-%>
-
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Table Display</title>
+    <title>Dynamic XML Table</title>
     <style>
         table {
             border-collapse: collapse;
-            width: 50%;
-            margin: 20px;
+            width: 100%;
         }
 
         th, td {
@@ -26,25 +20,53 @@ const headers = Object.keys(rows[0]);
             background-color: #f2f2f2;
         }
     </style>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Load XML content from data.xml
+            $.ajax({
+                type: "GET",
+                url: "data.xml",
+                dataType: "xml",
+                success: function(xml) {
+                    // Extract column names
+                    var columns = [];
+                    $(xml).find('rows > *').each(function() {
+                        columns.push(this.tagName);
+                    });
+
+                    // Create table headers
+                    var $thead = $('<thead><tr></tr></thead>');
+                    columns.forEach(function(column) {
+                        $thead.find('tr').append('<th>' + column + '</th>');
+                    });
+
+                    // Create table rows
+                    var $tbody = $('<tbody></tbody>');
+                    $(xml).find('rows').children().each(function() {
+                        var $row = $('<tr></tr>');
+                        columns.forEach(function(column) {
+                            $row.append('<td>' + $(this).find(column).text() + '</td>');
+                        });
+                        $tbody.append($row);
+                    });
+
+                    // Append table to the body
+                    var $table = $('<table></table>');
+                    $table.append($thead).append($tbody);
+                    $('body').append($table);
+                },
+                error: function(xhr, status, error) {
+                    console.error("Failed to load XML:", error);
+                }
+            });
+        });
+    </script>
 </head>
+
 <body>
-    <table>
-        <thead>
-            <tr>
-                <% headers.forEach(header => { %>
-                    <th><%= header %></th>
-                <% }); %>
-            </tr>
-        </thead>
-        <tbody>
-            <% rows.forEach(row => { %>
-                <tr>
-                    <% headers.forEach(header => { %>
-                        <td><%= row[header] %></td>
-                    <% }); %>
-                </tr>
-            <% }); %>
-        </tbody>
-    </table>
+
 </body>
 </html>
+ -->
+ hi

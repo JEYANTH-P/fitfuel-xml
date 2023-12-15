@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="/css/styles.xslt"?>
+<rows>
+    <row>
+        <user_id>1008</user_id>
+        <user_name>jeyabalan</user_name>
+        <weight>49</weight>
+        <height>175</height>
+        <health_issues></health_issues>
+        <bmi>16</bmi>
+        <status>Underweight</status>
+        <diet>yes</diet>
+        <required_weight>7.65625</required_weight>
+    </row>
+</rows>

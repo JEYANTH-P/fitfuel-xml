@@ -8,7 +8,10 @@ const flash = require('express-flash');
 const ejs = require('ejs');
 const app = express();
 const path = require('path');
+const xml2js = require('xml2js');
 
+
+const xmlParser = new xml2js.Parser();
 // Set up session
 app.use(session({
   secret: 'your-secret-key',
@@ -177,66 +180,115 @@ app.post("/home",async (req,res)=>{
 })
 
 
+const parseXml = async (xmlData) => {
+  try {
+    const parser = new xml2js.Parser({
+      explicitArray: false,
+      mergeAttrs: true,
+      explicitRoot: false,
+    });
+    const result = await parser.parseStringPromise(xmlData);
 
+    // Ensure result is an array
+    const dataArray = Array.isArray(result) ? result : [result];
+
+    // Extract keys (property names) from the first item in the array
+    const keys = Object.keys(dataArray[0]);
+
+    // Transform the data into the desired format
+    const transformedData = dataArray.map(item => {
+      const parsedItem = {};
+      keys.forEach(key => {
+        parsedItem[key] = item[key];
+      });
+      return parsedItem;
+    });
+
+    return transformedData;
+  } catch (error) {
+    console.error('Error parsing XML:', error);
+    throw error;
+  }
+};
 
 app.post('/menu', async (req, res) => {
   try {
-    
-
-    const { regex,food_type } = req.body;
+    const { regex, food_type } = req.body;
     req.session.regex = regex;
+
     const queryString = 'SELECT food_id,food_name, food_image, food_type, food_tag, description, calories, price FROM food WHERE keyword LIKE $1 and food_tag=$2';
-    const queryValues = [`%${regex}%`,req.session.Status];
+    const queryValues = [`%${regex}%`, req.session.Status];
 
     const result = await pool.query(queryString, queryValues);
-    console.log(result.rows);
 
-    // Render the 'menu' template with the query result
-   res.render('./menu', { result: result.rows }); 
+    // Convert the database results to an array of food objects
+    const foods = result.rows;
+    console.log(foods);
+
+    // Create an XML representation of the array of food objects
+    const xmlBuilder = new xml2js.Builder();
+    const xmlData = xmlBuilder.buildObject({ result: foods });
+
+    // Parse the XML data to a JavaScript object
+    const parsedData = await parseXml(xmlData);
+    console.log(parsedData);
+
+    // Render the 'menu' template with the parsed data
+    res.render('menu', { locals: { xmlData: parsedData } });
   } catch (error) {
     console.error('Error executing query:', error);
     // Handle the error
-    res.status(500).json({ error: 'Internal Server Error' });
-  } 
-});
-
-app.post('/menu1', async (req, res) => {
-  try {
-      const { food_id } = req.body;
-      const queryString = `
-          INSERT INTO order_table (user_id, food_ids, order_time)
-          VALUES ($1, ARRAY[$2::integer], NOW())
-          ON CONFLICT (user_id)
-          DO UPDATE
-          SET food_ids = array_append(order_table.food_ids, $2::integer), order_time = NOW();
-      `;
-      const queryValues = [req.session.userId, food_id];
-
-      await pool.query(queryString, queryValues);
-
-      // Fetch the updated menu data
-      
-      const updatedResult = await pool.query('SELECT food_id, food_name, food_image, food_type, food_tag, description, calories, price FROM food WHERE food_tag=$1 and keyword like $2', [req.session.Status,`%${req.session.regex}%`]);
-
-      res.render('./menu', { result: updatedResult.rows });
-  } catch (error) {
-      console.error('Error executing query:', error);
-      res.status(500).json({ error: 'Internal Server Error' });
+    res.status(500).send('Internal Server Error');
   }
 });
+
+
+
+
 
 
 app.get("/manager",async (req,res)=>{
   
   res.render("manager_login");
 })
-app.post("/query",async (req,res)=>{
-  const q = await pool.query(req.body.query);
 
-  const rows = q.rows;
-  console.log(rows);
-  res.render("query",{row:rows});
-})
+
+const fs = require('fs');
+app.use(express.static(path.join(__dirname, 'public')));
+
+app.post("/query", async (req, res) => {
+  try {
+    const q = await pool.query(req.body.query);
+    const rows = q.rows;
+
+    // Generate dynamic XML content
+    let xmlData = '<?xml version="1.0" encoding="UTF-8"?>\n<?xml-stylesheet type="text/xsl" href="/css/styles.xslt"?>\n<rows>\n';
+
+    rows.forEach((row) => {
+      xmlData += '    <row>\n';
+      Object.keys(row).forEach((key) => {
+        xmlData += `        <${key}>${row[key]}</${key}>\n`;
+      });
+      xmlData += '    </row>\n';
+    });
+
+    xmlData += '</rows>';
+
+    // Save XML data to a file
+    const xmlFilePath = path.join(__dirname, 'views', 'data.xml');
+    fs.writeFileSync(xmlFilePath, xmlData);
+
+    // Set Content-Type header
+    res.header('Content-Type', 'application/xml');
+
+    // Send the XML file to the client
+    res.sendFile(xmlFilePath);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
 app.post("/manager",async (req,res)=>{
   const { username, password } = req.body;
 

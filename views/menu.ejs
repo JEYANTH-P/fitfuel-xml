@@ -292,34 +292,41 @@
             <button class="button" ><span style="font-weight: bolder; font-size: large;">Add to Plate</span></button>
         </div>
     </div>
-    <% if(locals.result){%>
-    <% if (result && result.length > 0) { %>
-        <% result.forEach(food => { %>
-            <div class="green-box">
-                <div class="image">
-                    <img src="<%= food.food_image %>" alt="<%= food.food_name %>">
-                </div>
-                <div class="info">
-                    <h2 style="text-align: center; font-size: 2rem;"><%= food.food_name %></h2>
-                    <p style="position: relative; left:10%;font-size: 1rem; "><span style="font-weight:bold;">Food Type: </span><%= food.food_type %></p>
-                    <p style="position: relative; left:10%;font-size: 1rem; "><span style="font-weight:bold;">Description: </span><%= food.description %></p>
-                    <p style="position: relative; left:10%;font-size: 1rem; "><span style="font-weight:bold;">Food Calories: </span><%= food.calories %></p>
-                    <p style="position: relative; left:10%;font-size: 1rem; "><span style="font-weight:bold;">Recommended for : </span><%= food.food_tag %></p>
-                    <div class="price-tag" style="margin-left:250px">₹<%= food.price %></div>
-                    <form method="post" action="menu1">
-                        <input type="hidden" name="food_id" value= "<%= food.food_id %>">
-                        <!-- <input type="hidden" name="user_id" value= "<%= %>"> -->
-                        <button class="button" ><span style="font-weight: bolder; font-size: large;">Add to Plate</button>
-                    </form>
-                    
-                </div>
+    <% if (locals.xmlData && locals.xmlData.length > 0 && locals.xmlData[0].food_id) { %>
+        <% const data = Array.isArray(locals.xmlData) ? locals.xmlData[0] : locals.xmlData; %>
+        <% const foodArray = Array.isArray(data.food_id) ? data.food_id : [data.food_id]; %>
+        <% for (let i = 0; i < foodArray.length; i++) { %>
+          <% const food = {} %>
+          <% Object.keys(data).forEach(key => { %>
+            <% if (Array.isArray(data[key])) { %>
+              <% food[key] = data[key][i]; %>
+            <% } else { %>
+              <% food[key] = data[key]; %>
+            <% } %>
+          <% }); %>
+          <div class="green-box">
+            <div class="image">
+              <img src="<%= food.food_image %>" alt="<%= food.food_name %>">
             </div>
-        <% }); %>
-    <% } else { %>
+            <div class="info">
+              <h2 style="text-align: center; font-size: 2rem;"><%= food.food_name %></h2>
+              <p style="position: relative; left:10%;font-size: 1rem; "><span style="font-weight:bold;">Food Type: </span><%= food.food_type %></p>
+              <p style="position: relative; left:10%;font-size: 1rem; "><span style="font-weight:bold;">Description: </span><%= food.description %></p>
+              <p style="position: relative; left:10%;font-size: 1rem; "><span style="font-weight:bold;">Food Calories: </span><%= food.calories %></p>
+              <p style="position: relative; left:10%;font-size: 1rem; "><span style="font-weight:bold;">Recommended for : </span><%= food.food_tag %></p>
+              <div class="price-tag" style="margin-left:250px">₹<%= food.price %></div>
+              <form method="post" action="menu1">
+                <input type="hidden" name="food_id" value="<%= food.food_id %>">
+                <button class="button"><span style="font-weight: bolder; font-size: large;">Add to Plate</button>
+              </form>
+            </div>
+          </div>
+        <% } %>
+      <% } else { %>
         <p>No results found.</p>
-    <% } %>
-    <% } %>
-
+      <% } %>
+      
+      
 
     <h2>Too Hungry?</h2>
     <div class="container" id="no1">
