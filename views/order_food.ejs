@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orders</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-weight: 500;
+            font-family: 'poppins', sans-serif;
+            background-color: #f1f8e9; /* Light green background */
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh; /* Ensure full height of the viewport */
+        }
+
+        header {
+            background-color: #689f38; /* Dark green header */
+            color: white;
+            text-align: center;
+            padding: 30px;
+            font-weight: bold;
+            width: 100%;
+        }
+
+        main {
+            flex: 1; /* Allow main content to grow and take remaining space */
+            padding: 20px;
+            padding-bottom: 15px;
+            margin-bottom: 80px; /* Adjusted margin to accommodate the footer */
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #4caf50; /* Dark green header cells */
+            color: white;
+        }
+
+        .total-price {
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .proceed-btn {
+            background-color: #4caf50; /* Dark green button */
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 660px;
+            margin-top: 100px;
+            color: black;
+            font-weight: 700;
+            transition: background-color 0.3s ease;
+        }
+
+        .proceed-btn:hover {
+            background-color: #689f38; /* Light green on hover */
+            padding: 10px;
+        }
+
+        .remove-btn {
+            background-color: transparent;
+            color: red;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        footer {
+            background-color: #689f38; /* Dark green footer */
+            color: white;
+            text-align: center;
+            padding: 30px;
+            font-weight: bold;
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        Orders
+    </header>
+    <main>
+        <table id="foodTable">
+            <thead>
+                <tr>
+                    <th>Food Name</th>
+                    <th>Food Price</th>
+                    <th>Select</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Table rows will be dynamically added here using JavaScript -->
+            </tbody>
+        </table>
+        <br>
+        <p class="total-price">Total Price: <span id="totalPrice">0.00</span></p>
+
+        <button class="proceed-btn" onclick="proceedToPayment()">Proceed to Payment</button>
+    </main>
+
+    <footer>
+        Copyrights © FitFuel System
+    </footer>
+    <script>
+        // Your existing script here
+    </script>
+</body>
+
+</html>
