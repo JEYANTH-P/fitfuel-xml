@@ -242,6 +242,48 @@ app.post('/menu', async (req, res) => {
   }
 });
 
+app.post('/menu1', async (req, res) => {
+  try {
+      const { food_id } = req.body;
+      const queryString = `
+          INSERT INTO order_table (user_id, food_ids, order_time)
+          VALUES ($1, ARRAY[$2::integer], NOW())
+          ON CONFLICT (user_id)
+          DO UPDATE
+          SET food_ids = array_append(order_table.food_ids, $2::integer), order_time = NOW();
+      `;
+      const queryValues = [req.session.userId, food_id];
+
+      await pool.query(queryString, queryValues);
+
+      // Fetch the updated menu data
+      
+
+    const updatedQuery = 'SELECT food_id,food_name, food_image, food_type, food_tag, description, calories, price FROM food WHERE keyword LIKE $1 and food_tag=$2';
+    const updatedQueryValues = [`%${req.session.regex}%`, req.session.Status];
+
+    const result = await pool.query(updatedQuery, updatedQueryValues);
+
+    // Convert the database results to an array of food objects
+    const foods = result.rows;
+    console.log(foods);
+
+    // Create an XML representation of the array of food objects
+    const xmlBuilder = new xml2js.Builder();
+    const xmlData = xmlBuilder.buildObject({ result: foods });
+
+    // Parse the XML data to a JavaScript object
+    const parsedData = await parseXml(xmlData);
+    console.log(parsedData);
+
+    // Render the 'menu' template with the parsed data
+    res.render('menu', { locals: { xmlData: parsedData } });
+  } catch (error) {
+      console.error('Error executing query:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
 
 
 
